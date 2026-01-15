@@ -1,12 +1,10 @@
 {
-	"files": [],
-	"references": [
-		{ "path": "./packages/ui" },
-		{ "path": "./packages/ui-solid" },
-		{ "path": "./packages/utils" },
-		{ "path": "./apps/desktop" },
-		{ "path": "./apps/web" }
-	],
+ "files": [],
+ "references": [
+    { "path": "./packages/ui-solid" },
+    { "path": "./packages/web-api-contract" },
+    { "path": "./apps/desktop" }
+  ],
 	"compilerOptions": {
 		"plugins": [{ "name": "@effect/language-service" }]
 	}
