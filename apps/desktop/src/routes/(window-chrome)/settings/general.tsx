@@ -42,7 +42,7 @@ import IconLucideX from "~icons/lucide/x";
 import { SettingItem, ToggleSettingItem } from "./Setting";
 
 const getExclusionPrimaryLabel = (entry: WindowExclusion) =>
-	entry.ownerName ?? entry.windowTitle ?? entry.bundleIdentifier ?? "Unknown";
+	entry.ownerName ?? entry.windowTitle ?? entry.bundleIdentifier ?? "未知";
 
 const getExclusionSecondaryLabel = (entry: WindowExclusion) => {
 	if (entry.ownerName && entry.windowTitle) {
@@ -104,7 +104,7 @@ const INSTANT_MODE_RESOLUTION_OPTIONS = [
 
 const MAX_FPS_OPTIONS = [
 	{ value: 30, label: "30 FPS" },
-	{ value: 60, label: "60 FPS (Recommended)" },
+	{ value: 60, label: "60 FPS（推荐）" },
 	{ value: 120, label: "120 FPS" },
 ] satisfies {
 	value: number;
@@ -131,15 +131,15 @@ function AppearanceSection(props: {
 	const options = [
 		{
 			id: "system",
-			name: "System",
+			name: "系统",
 		},
 		{
 			id: "light",
-			name: "Light",
+			name: "浅色",
 		},
 		{
 			id: "dark",
-			name: "Dark",
+			name: "深色",
 		},
 	] satisfies { id: AppTheme; name: string }[];
 
@@ -152,14 +152,14 @@ function AppearanceSection(props: {
 	return (
 		<div class="flex flex-col gap-4">
 			<div class="flex flex-col border-b border-gray-2">
-				<h2 class="text-lg font-medium text-gray-12">General Settings</h2>
+				<h2 class="text-lg font-medium text-gray-12">通用设置</h2>
 			</div>
 			<div
 				class="flex justify-start items-center text-gray-12"
 				onContextMenu={(e) => e.preventDefault()}
 			>
 				<div class="flex flex-col gap-3">
-					<p class="text-sm text-gray-12">Appearance</p>
+					<p class="text-sm text-gray-12">外观</p>
 					<div class="flex justify-between m-1 min-w-[20rem] w-[22.2rem] flex-nowrap">
 						<For each={options}>
 							{(theme) => (
@@ -179,7 +179,7 @@ function AppearanceSection(props: {
 													props.currentTheme !== theme.id,
 											},
 										)}
-										aria-label={`Select theme: ${theme.name}`}
+										aria-label={`选择主题：${theme.name}`}
 									>
 										<div class="flex justify-center items-center w-full h-full">
 											<Show when={previews[theme.id]} keyed>
@@ -188,7 +188,7 @@ function AppearanceSection(props: {
 														class="animate-in fade-in duration-300"
 														draggable={false}
 														src={preview}
-														alt={`Preview of ${theme.name} theme`}
+														alt={`主题预览：${theme.name}`}
 													/>
 												)}
 											</Show>
@@ -405,16 +405,16 @@ function Inner(props: { initialStore: GeneralSettingsStore | null }) {
 				/>
 
 				{ostype === "macos" && (
-					<SettingGroup title="App">
+					<SettingGroup title="应用">
 						<ToggleSettingItem
-							label="Always show dock icon"
-							description="Show Cap in the dock even when there are no windows available to close."
+							label="始终显示 Dock 图标"
+							description="即使没有可关闭的窗口，也在 Dock 中保留 Cap。"
 							value={!settings.hideDockIcon}
 							onChange={(v) => handleChange("hideDockIcon", !v)}
 						/>
 						<ToggleSettingItem
-							label="Enable system notifications"
-							description="Show system notifications for events like copying to clipboard, saving files, and more. You may need to manually allow Cap access via your system's notification settings."
+							label="启用系统通知"
+							description="在复制到剪贴板、保存文件等事件时显示系统通知。系统通知权限可能需要在设置中手动开启。"
 							value={!!settings.enableNotifications}
 							onChange={async (value) => {
 								if (value) {
@@ -445,10 +445,10 @@ function Inner(props: { initialStore: GeneralSettingsStore | null }) {
 					</SettingGroup>
 				)}
 
-				<SettingGroup title="Recording">
+				<SettingGroup title="录制">
 					<SelectSettingItem
-						label="Instant mode max resolution"
-						description="Choose the maximum resolution for Instant Mode recordings."
+						label="即时模式最高分辨率"
+						description="设置即时模式录制的最大分辨率。"
 						value={settings.instantModeMaxResolution ?? 1920}
 						onChange={(value) =>
 							handleChange("instantModeMaxResolution", value)
@@ -459,75 +459,75 @@ function Inner(props: { initialStore: GeneralSettingsStore | null }) {
 						}))}
 					/>
 					<SelectSettingItem
-						label="Recording countdown"
-						description="Countdown before recording starts"
+						label="录制倒计时"
+						description="录制开始前的倒计时时长"
 						value={settings.recordingCountdown ?? 0}
 						onChange={(value) => handleChange("recordingCountdown", value)}
 						options={[
-							{ text: "Off", value: 0 },
-							{ text: "3 seconds", value: 3 },
-							{ text: "5 seconds", value: 5 },
-							{ text: "10 seconds", value: 10 },
+							{ text: "关闭", value: 0 },
+							{ text: "3 秒", value: 3 },
+							{ text: "5 秒", value: 5 },
+							{ text: "10 秒", value: 10 },
 						]}
 					/>
 					<SelectSettingItem
-						label="Main window recording start behaviour"
-						description="The main window recording start behaviour"
+						label="录制开始后的主窗口行为"
+						description="设置录制启动时主窗口的行为"
 						value={settings.mainWindowRecordingStartBehaviour ?? "close"}
 						onChange={(value) =>
 							handleChange("mainWindowRecordingStartBehaviour", value)
 						}
 						options={[
-							{ text: "Close", value: "close" },
-							{ text: "Minimise", value: "minimise" },
+							{ text: "关闭", value: "close" },
+							{ text: "最小化", value: "minimise" },
 						]}
 					/>
 					<SelectSettingItem
-						label="Studio recording finish behaviour"
-						description="The studio recording finish behaviour"
+						label="编辑器录制结束行为"
+						description="录制结束后的操作"
 						value={settings.postStudioRecordingBehaviour ?? "openEditor"}
 						onChange={(value) =>
 							handleChange("postStudioRecordingBehaviour", value)
 						}
 						options={[
-							{ text: "Open editor", value: "openEditor" },
+							{ text: "打开编辑器", value: "openEditor" },
 							{
-								text: "Show in overlay",
+								text: "在浮窗中显示",
 								value: "showOverlay",
 							},
 						]}
 					/>
 					<SelectSettingItem
-						label="After deleting recording behaviour"
-						description="Should Cap reopen after deleting an in progress recording?"
+						label="删除录制后的行为"
+						description="删除进行中的录制后是否重新打开 Cap？"
 						value={settings.postDeletionBehaviour ?? "doNothing"}
 						onChange={(value) => handleChange("postDeletionBehaviour", value)}
 						options={[
-							{ text: "Do Nothing", value: "doNothing" },
+							{ text: "无操作", value: "doNothing" },
 							{
-								text: "Reopen Recording Window",
+								text: "重新打开录制窗口",
 								value: "reopenRecordingWindow",
 							},
 						]}
 					/>
 					<ToggleSettingItem
-						label="Delete instant mode recordings after upload"
-						description="After finishing an instant recording, should Cap will delete it from your device?"
+						label="上传后删除即时模式录制"
+						description="完成即时录制后，是否从本地删除对应文件？"
 						value={settings.deleteInstantRecordingsAfterUpload ?? false}
 						onChange={(v) =>
 							handleChange("deleteInstantRecordingsAfterUpload", v)
 						}
 					/>
 					<ToggleSettingItem
-						label="Crash-recoverable recording"
-						description="Records in fragmented segments that can be recovered if the app crashes or your system loses power. May have slightly higher storage usage during recording."
+						label="崩溃可恢复录制"
+						description="以可恢复分段方式录制，应用崩溃或断电时可恢复，录制期间可能占用稍多存储。"
 						value={settings.crashRecoveryRecording ?? true}
 						onChange={(value) => handleChange("crashRecoveryRecording", value)}
 					/>
 					<div class="flex flex-col gap-1">
 						<SelectSettingItem
-							label="Max capture framerate"
-							description="Maximum framerate for screen capture. Higher values may cause instability on some systems."
+							label="最高采集帧率"
+							description="屏幕采集的最大帧率，部分设备高帧率可能不稳定。"
 							value={settings.maxFps ?? 60}
 							onChange={(value) => handleChange("maxFps", value)}
 							options={MAX_FPS_OPTIONS.map((option) => ({
@@ -537,20 +537,19 @@ function Inner(props: { initialStore: GeneralSettingsStore | null }) {
 						/>
 						{(settings.maxFps ?? 60) > 60 && (
 							<p class="text-xs text-amber-500 px-1 pb-2">
-								⚠️ Higher framerates may cause frame drops or increased CPU usage
-								on some systems.
+								⚠️ 较高帧率可能在部分设备上导致掉帧或增加 CPU 负载。
 							</p>
 						)}
 					</div>
 				</SettingGroup>
 
 				<SettingGroup
-					title="Cap Pro Settings"
+					title="Cap Pro 设置"
 					titleStyling="bg-blue-500 py-1.5 mb-4 text-white text-xs px-2 rounded-lg"
 				>
 					<ToggleSettingItem
-						label="Automatically open shareable links"
-						description="Whether Cap should automatically open instant recordings in your browser"
+						label="自动打开可分享链接"
+						description="是否在浏览器中自动打开即时录制的分享链接"
 						value={!settings.disableAutoOpenLinks}
 						onChange={(v) => handleChange("disableAutoOpenLinks", !v)}
 					/>
@@ -582,7 +581,7 @@ function Inner(props: { initialStore: GeneralSettingsStore | null }) {
 
 						if (
 							!(await confirm(
-								`Are you sure you want to change the server URL to '${origin}'? You will need to sign in again.`,
+								`确认将服务器地址修改为 '${origin}'？修改后需要重新登录。`,
 							))
 						)
 							return;
@@ -620,11 +619,11 @@ function ServerURLSetting(props: {
 
 	return (
 		<div class="flex flex-col gap-3">
-			<h3 class="text-sm text-gray-12 w-fit">Self host</h3>
+			<h3 class="text-sm text-gray-12 w-fit">自托管</h3>
 			<div class="flex flex-col gap-2 px-4 rounded-xl border border-gray-3 bg-gray-2">
 				<SettingItem
-					label="Cap Server URL"
-					description="This setting should only be changed if you are self hosting your own instance of Cap Web."
+					label="Cap 服务器地址"
+					description="仅在自托管时修改该地址。"
 				>
 					<div class="flex flex-col gap-2 items-end">
 						<Input
@@ -639,7 +638,7 @@ function ServerURLSetting(props: {
 							disabled={props.value === value()}
 							onClick={() => props.onChange(value())}
 						>
-							Update
+							更新
 						</Button>
 					</div>
 				</SettingItem>
@@ -715,7 +714,7 @@ function DefaultProjectNameCard(props: {
 		return (
 			<button
 				type="button"
-				title="Click to copy"
+				title="点击复制"
 				class="bg-gray-1 hover:bg-gray-5 rounded-md m-0.5 p-0.5 cursor-pointer transition-[color,background-color,transform] ease-out duration-200 active:scale-95"
 				onClick={() => commands.writeClipboardString(props.children)}
 			>
@@ -728,10 +727,8 @@ function DefaultProjectNameCard(props: {
 		<div class="flex flex-col gap-3 px-4 py-3 mt-6 rounded-xl border border-gray-3 bg-gray-2">
 			<div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 				<div class="flex flex-col gap-1">
-					<p class="text-sm text-gray-12">Default Project Name</p>
-					<p class="text-xs text-gray-10">
-						Choose the template to use as the default project and file name.
-					</p>
+					<p class="text-sm text-gray-12">默认项目名称</p>
+					<p class="text-xs text-gray-10">选择默认的项目与文件名模板。</p>
 				</div>
 				<div class="flex flex-shrink-0 gap-2">
 					<Button
@@ -749,7 +746,7 @@ function DefaultProjectNameCard(props: {
 							await updatePreview(newTemplate);
 						}}
 					>
-						Reset
+						重置
 					</Button>
 
 					<Button
@@ -761,7 +758,7 @@ function DefaultProjectNameCard(props: {
 							await updatePreview();
 						}}
 					>
-						Save
+						保存
 					</Button>
 				</div>
 			</div>
@@ -787,57 +784,52 @@ function DefaultProjectNameCard(props: {
 				<Collapsible class="w-full rounded-lg">
 					<Collapsible.Trigger class="group inline-flex items-center w-full text-xs rounded-lg outline-none px-0.5 py-1">
 						<IconCapChevronDown class="size-4 ui-group-expanded:rotate-180 transition-transform duration-300 ease-in-out" />
-						<p class="py-0.5 px-1">How to customize?</p>
+						<p class="py-0.5 px-1">如何自定义？</p>
 					</Collapsible.Trigger>
 
 					<Collapsible.Content class="opacity-0 transition animate-collapsible-up ui-expanded:animate-collapsible-down ui-expanded:opacity-100 text-xs text-gray-12 space-y-3 px-1 pb-2">
-						<p class="border-t pt-3">
-							Use placeholders in your template that will be automatically
-							filled in.
-						</p>
+						<p class="border-t pt-3">在模板中使用占位符，Cap 会自动填充。</p>
 
 						<div class="space-y-1">
-							<p class="font-medium text-foreground">Recording Mode</p>
+							<p class="font-medium text-foreground">录制模式</p>
 							<p>
-								<CodeView>{"{recording_mode}"}</CodeView> → "Studio", "Instant",
-								or "Screenshot"
+								<CodeView>{"{recording_mode}"}</CodeView> → “工作室”、“即时”
+								或“截图”
 							</p>
 							<p>
-								<CodeView>{"{mode}"}</CodeView> → "studio", "instant", or
-								"screenshot"
+								<CodeView>{"{mode}"}</CodeView> → “studio”、“instant” 或
+								“screenshot”
 							</p>
 						</div>
 
 						<div class="space-y-1">
-							<p class="font-medium text-foreground">Target</p>
+							<p class="font-medium text-foreground">录制目标</p>
 							<p>
-								<CodeView>{"{target_kind}"}</CodeView> → "Display", "Window", or
-								"Area"
+								<CodeView>{"{target_kind}"}</CodeView> →
+								“显示器”、“窗口”或“区域”
 							</p>
 							<p>
-								<CodeView>{"{target_name}"}</CodeView> → The name of the monitor
-								or the title of the app depending on the recording mode.
+								<CodeView>{"{target_name}"}</CodeView> →
+								根据录制模式填充显示器名称或应用标题。
 							</p>
 						</div>
 
 						<div class="space-y-1">
-							<p class="font-medium text-foreground">Date &amp; Time</p>
+							<p class="font-medium text-foreground">日期与时间</p>
 							<p>
 								<CodeView>{"{date}"}</CodeView> → {dateString}
 							</p>
 							<p>
-								<CodeView>{"{time}"}</CodeView> →{" "}
-								{macos ? "09:41 AM" : "12:00 PM"}
+								<CodeView>{"{time}"}</CodeView> → {macos ? "09:41" : "12:00"}
 							</p>
 						</div>
 
 						<div class="space-y-1">
-							<p class="font-medium text-foreground">Custom Formats</p>
+							<p class="font-medium text-foreground">自定义格式</p>
 							<p>
-								You can also use a custom format for time. The placeholders are
-								case-sensitive. For 24-hour time, use{" "}
-								<CodeView>{"{moment:HH:mm}"}</CodeView> or use lower cased{" "}
-								<code>hh</code> for 12-hour format.
+								时间格式支持自定义，占位符区分大小写。24 小时制使用{" "}
+								<CodeView>{"{moment:HH:mm}"}</CodeView>，12 小时制使用小写{" "}
+								<code>hh</code>。
 							</p>
 							<p class="flex flex-col items-start pt-1">
 								<CodeView>{MOMENT_EXAMPLE_TEMPLATE}</CodeView> →{" "}
@@ -921,15 +913,12 @@ function ExcludedWindowsCard(props: {
 		<div class="flex flex-col gap-3 px-4 py-3 mt-6 rounded-xl border border-gray-3 bg-gray-2">
 			<div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
 				<div class="flex flex-col gap-1">
-					<p class="text-sm text-gray-12">Excluded Windows</p>
-					<p class="text-xs text-gray-10">
-						Choose which windows Cap hides from your recordings.
-					</p>
+					<p class="text-sm text-gray-12">排除的窗口</p>
+					<p class="text-xs text-gray-10">选择录制中需要隐藏的窗口。</p>
 					<Show when={props.isWindows}>
 						<p class="text-xs text-gray-9">
-							<span class="font-medium text-gray-11">Note:</span> Only Cap
-							related windows can be excluded on Windows due to technical
-							limitations.
+							<span class="font-medium text-gray-11">提示：</span>
+							由于平台限制，在 Windows 上仅能排除 Cap 相关窗口。
 						</p>
 					</Show>
 				</div>
@@ -943,7 +932,7 @@ function ExcludedWindowsCard(props: {
 							void props.onReset();
 						}}
 					>
-						Reset to Default
+						恢复默认
 					</Button>
 					<Button
 						variant="dark"
@@ -953,18 +942,14 @@ function ExcludedWindowsCard(props: {
 						class="flex items-center gap-2"
 					>
 						<IconLucidePlus class="size-4" />
-						Add
+						添加
 					</Button>
 				</div>
 			</div>
 			<Show when={!props.isLoading} fallback={<ExcludedWindowsSkeleton />}>
 				<Show
 					when={hasExclusions()}
-					fallback={
-						<p class="text-xs text-gray-10">
-							No windows are currently excluded.
-						</p>
-					}
+					fallback={<p class="text-xs text-gray-10">当前没有排除任何窗口。</p>}
 				>
 					<div class="flex flex-wrap gap-2">
 						<For each={props.excludedWindows}>
@@ -986,7 +971,7 @@ function ExcludedWindowsCard(props: {
 										type="button"
 										class="flex items-center justify-center rounded-full bg-gray-4/70 text-gray-11 transition-colors hover:bg-gray-5 hover:text-gray-12 size-6"
 										onClick={() => void props.onRemove(index())}
-										aria-label="Remove excluded window"
+										aria-label="移除排除项"
 									>
 										<IconLucideX class="size-3" />
 									</button>

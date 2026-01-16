@@ -44,19 +44,30 @@ type Recording = {
 const Tabs = [
 	{
 		id: "all",
-		label: "Show all",
+		label: "全部录制",
 	},
 	{
 		id: "instant",
 		icon: <IconCapInstant class="invert size-3 dark:invert-0" />,
-		label: "Instant",
+		label: "即时",
 	},
 	{
 		id: "studio",
 		icon: <IconCapFilmCut class="invert size-3 dark:invert-0" />,
-		label: "Studio",
+		label: "工作室",
 	},
 ] satisfies { id: string; label: string; icon?: JSX.Element }[];
+
+const TAB_LABELS: Record<(typeof Tabs)[number]["id"], string> = {
+	all: "录制内容",
+	instant: "即时录制",
+	studio: "工作室录制",
+};
+
+const MODE_LABELS: Record<Recording["meta"]["mode"], string> = {
+	instant: "即时",
+	studio: "工作室",
+};
 
 const PAGE_SIZE = 20;
 
@@ -156,10 +167,11 @@ export default function Recordings() {
 	);
 
 	const emptyMessage = createMemo(() => {
-		const tabLabel =
-			activeTab() === "all" ? "recordings" : `${activeTab()} recordings`;
-		const prefix = trimmedSearch() ? "No matching" : "No";
-		return `${prefix} ${tabLabel}`;
+		const tabLabel = TAB_LABELS[activeTab()];
+		if (trimmedSearch()) {
+			return `未找到匹配的${tabLabel}`;
+		}
+		return `暂无${tabLabel}`;
 	});
 
 	const handleRecordingClick = (recording: Recording) => {
@@ -187,16 +199,14 @@ export default function Recordings() {
 	return (
 		<div class="flex relative flex-col p-4 space-y-4 w-full h-full">
 			<div class="flex flex-col">
-				<h2 class="text-lg font-medium text-gray-12">Recordings</h2>
-				<p class="text-sm text-gray-10">
-					Manage your recordings and perform actions.
-				</p>
+				<h2 class="text-lg font-medium text-gray-12">录制内容</h2>
+				<p class="text-sm text-gray-10">管理所有录制并执行相关操作。</p>
 			</div>
 			<Show
 				when={recordings.data && recordings.data.length > 0}
 				fallback={
 					<p class="text-center text-[--text-tertiary] absolute flex items-center justify-center w-full h-full">
-						No recordings found
+						未找到录制内容
 					</p>
 				}
 			>
@@ -232,12 +242,12 @@ export default function Recordings() {
 									setSearch("");
 								}
 							}}
-							placeholder="Search recordings"
+							placeholder="搜索录制内容"
 							autoCapitalize="off"
 							autocorrect="off"
 							autocomplete="off"
 							spellcheck={false}
-							aria-label="Search recordings"
+							aria-label="搜索录制内容"
 						/>
 					</div>
 				</div>
@@ -281,7 +291,7 @@ export default function Recordings() {
 									)
 								}
 							>
-								Load more
+								加载更多
 							</Button>
 						</div>
 					</Show>
@@ -301,8 +311,7 @@ function RecordingItem(props: {
 }) {
 	const [imageExists, setImageExists] = createSignal(true);
 	const mode = () => props.recording.meta.mode;
-	const firstLetterUpperCase = () =>
-		mode().charAt(0).toUpperCase() + mode().slice(1);
+	const modeLabel = () => MODE_LABELS[mode()] ?? mode();
 
 	const queryClient = useQueryClient();
 	const studioCompleteCheck = () =>
@@ -329,7 +338,7 @@ function RecordingItem(props: {
 				>
 					<img
 						class="object-cover rounded size-12"
-						alt="Recording thumbnail"
+						alt="录制缩略图"
 						src={`${convertFileSrc(
 							props.recording.thumbnailPath,
 						)}?t=${Date.now()}`}
@@ -350,7 +359,7 @@ function RecordingItem(props: {
 							) : (
 								<IconCapFilmCut class="invert size-2.5 dark:invert-0" />
 							)}
-							<p>{firstLetterUpperCase()}</p>
+							<p>{modeLabel()}</p>
 						</div>
 
 						<Show when={props.recording.meta.status.status === "InProgress"}>
@@ -360,7 +369,7 @@ function RecordingItem(props: {
 								)}
 							>
 								<IconPhRecordFill class="invert size-2.5 dark:invert-0" />
-								<p>Recording in progress</p>
+								<p>录制进行中</p>
 							</div>
 						</Show>
 
@@ -380,7 +389,7 @@ function RecordingItem(props: {
 									)}
 								>
 									<IconPhWarningBold class="invert size-2.5 dark:invert-0" />
-									<p>Recording failed</p>
+									<p>录制失败</p>
 								</div>
 							</CapTooltip>
 						</Show>
@@ -401,7 +410,7 @@ function RecordingItem(props: {
 					<Show when={props.recording.meta.sharing}>
 						{(sharing) => (
 							<TooltipIconButton
-								tooltipText="Open link"
+								tooltipText="打开链接"
 								onClick={() => shell.open(sharing().link)}
 							>
 								<IconCapLink class="size-4" />
@@ -409,14 +418,14 @@ function RecordingItem(props: {
 						)}
 					</Show>
 					<TooltipIconButton
-						tooltipText="Edit"
+						tooltipText="编辑"
 						onClick={async () => {
 							if (
 								props.recording.meta.status.status === "Failed" &&
 								!(await confirm(
-									"The recording failed so this file may have issues in the editor! If your having issues recovering the file please reach out to support!",
+									"录制失败，文件可能无法在编辑器中正常打开。如无法恢复请联系支持。",
 									{
-										title: "Recording is potentially corrupted",
+										title: "录制可能已损坏",
 										kind: "warning",
 									},
 								))
@@ -447,7 +456,7 @@ function RecordingItem(props: {
 									when={props.uploadProgress || reupload.isPending}
 									fallback={
 										<TooltipIconButton
-											tooltipText="Reupload"
+											tooltipText="重新上传"
 											onClick={() => reupload.mutate()}
 										>
 											<IconLucideRotateCcw class="size-4" />
@@ -464,7 +473,7 @@ function RecordingItem(props: {
 								<Show when={props.recording.meta.sharing}>
 									{(sharing) => (
 										<TooltipIconButton
-											tooltipText="Open link"
+											tooltipText="打开链接"
 											onClick={() => shell.open(sharing().link)}
 										>
 											<IconCapLink class="size-4" />
@@ -476,16 +485,15 @@ function RecordingItem(props: {
 					}}
 				</Show>
 				<TooltipIconButton
-					tooltipText="Open recording bundle"
+					tooltipText="打开录制包"
 					onClick={() => revealItemInDir(`${props.recording.path}/`)}
 				>
 					<IconLucideFolder class="size-4" />
 				</TooltipIconButton>
 				<TooltipIconButton
-					tooltipText="Delete"
+					tooltipText="删除"
 					onClick={async () => {
-						if (!(await ask("Are you sure you want to delete this recording?")))
-							return;
+						if (!(await ask("确定要删除该录制内容吗？"))) return;
 						await remove(props.recording.path, { recursive: true });
 
 						queryClient.refetchQueries(recordingsQuery);

@@ -268,33 +268,6 @@ async setCameraPreviewState(state: CameraPreviewState) : Promise<null> {
 async awaitCameraPreviewReady() : Promise<boolean> {
     return await TAURI_INVOKE("await_camera_preview_ready");
 },
-async createDir(path: string, recursive: boolean) : Promise<null> {
-    return await TAURI_INVOKE("create_dir", { path, recursive });
-},
-async saveModelFile(path: string, data: number[]) : Promise<null> {
-    return await TAURI_INVOKE("save_model_file", { path, data });
-},
-async transcribeAudio(videoPath: string, modelPath: string, language: string) : Promise<CaptionData> {
-    return await TAURI_INVOKE("transcribe_audio", { videoPath, modelPath, language });
-},
-async saveCaptions(videoId: string, captions: CaptionData) : Promise<null> {
-    return await TAURI_INVOKE("save_captions", { videoId, captions });
-},
-async loadCaptions(videoId: string) : Promise<CaptionData | null> {
-    return await TAURI_INVOKE("load_captions", { videoId });
-},
-async downloadWhisperModel(modelName: string, outputPath: string) : Promise<null> {
-    return await TAURI_INVOKE("download_whisper_model", { modelName, outputPath });
-},
-async checkModelExists(modelPath: string) : Promise<boolean> {
-    return await TAURI_INVOKE("check_model_exists", { modelPath });
-},
-async deleteWhisperModel(modelPath: string) : Promise<null> {
-    return await TAURI_INVOKE("delete_whisper_model", { modelPath });
-},
-async exportCaptionsSrt(videoId: string) : Promise<string | null> {
-    return await TAURI_INVOKE("export_captions_srt", { videoId });
-},
 async prewarmTargetSelectOverlays() : Promise<null> {
     return await TAURI_INVOKE("prewarm_target_select_overlays");
 },
@@ -340,7 +313,6 @@ export const events = __makeEvents__<{
 audioInputLevelChange: AudioInputLevelChange,
 currentRecordingChanged: CurrentRecordingChanged,
 devicesUpdated: DevicesUpdated,
-downloadProgress: DownloadProgress,
 editorStateChanged: EditorStateChanged,
 newNotification: NewNotification,
 newScreenshotAdded: NewScreenshotAdded,
@@ -365,7 +337,6 @@ videoImportProgress: VideoImportProgress
 audioInputLevelChange: "audio-input-level-change",
 currentRecordingChanged: "current-recording-changed",
 devicesUpdated: "devices-updated",
-downloadProgress: "download-progress",
 editorStateChanged: "editor-state-changed",
 newNotification: "new-notification",
 newScreenshotAdded: "new-screenshot-added",
@@ -415,7 +386,6 @@ export type CameraPreviewState = { size: number; shape: CameraPreviewShape; mirr
 export type CameraShape = "square" | "source"
 export type CameraXPosition = "left" | "center" | "right"
 export type CameraYPosition = "top" | "bottom"
-export type CaptionData = { segments: CaptionSegment[]; settings: CaptionSettings | null }
 export type CaptionSegment = { id: string; start: number; end: number; text: string; words?: CaptionWord[] }
 export type CaptionSettings = { enabled: boolean; font: string; size: number; color: string; backgroundColor: string; backgroundOpacity: number; position: string; italic: boolean; fontWeight: number; outline: boolean; outlineColor: string; exportWithSubtitles: boolean; highlightColor: string; fadeDuration: number; lingerDuration: number; wordTransitionDuration: number; activeWordHighlight: boolean }
 export type CaptionWord = { text: string; start: number; end: number }
@@ -442,7 +412,6 @@ export type DeviceOrModelID = { DeviceID: string } | { ModelID: ModelIDType }
 export type DevicesUpdated = { cameras: CameraInfo[]; microphones: string[]; permissions: OSPermissionsCheck }
 export type DisplayId = string
 export type DisplayInformation = { name: string | null; physical_size: PhysicalSize | null; logical_size: LogicalSize | null; logical_bounds: LogicalBounds | null; refresh_rate: string }
-export type DownloadProgress = { progress: number; message: string }
 export type EditorPreviewQuality = "quarter" | "half" | "full"
 export type EditorStateChanged = { playhead_position: number }
 export type ExportCompression = "Maximum" | "Social" | "Web" | "Potato"

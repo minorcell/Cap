@@ -80,12 +80,11 @@ export function Header() {
 					onClick={async () => {
 						clearTimelineSelection();
 
-						if (!(await ask("Are you sure you want to delete this recording?")))
-							return;
+						if (!(await ask("您确定要删除这个录制吗？"))) return;
 
 						await commands.editorDeleteProject();
 					}}
-					tooltipText="Delete recording"
+					tooltipText="删除录制"
 					leftIcon={<IconCapTrash class="w-5" />}
 				/>
 				<EditorButton
@@ -95,7 +94,7 @@ export function Header() {
 						console.log({ path: `${editorInstance.path}/` });
 						revealItemInDir(`${editorInstance.path}/`);
 					}}
-					tooltipText="Open recording bundle"
+					tooltipText="打开录制文件夹"
 					leftIcon={<IconLucideFolder class="w-5" />}
 				/>
 
@@ -108,7 +107,7 @@ export function Header() {
 					onClick={() => {
 						if (clearTimelineSelection()) return;
 					}}
-					tooltipText="Captions"
+					tooltipText="字幕"
 					leftIcon={<IconCapCaptions class="w-5" />}
 					comingSoon={true}
 				/>

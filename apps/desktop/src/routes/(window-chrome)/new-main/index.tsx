@@ -179,26 +179,26 @@ function TargetMenuPanel(props: TargetMenuPanelProps & SharedTargetMenuProps) {
 	const normalizedQuery = createMemo(() => trimmedSearch().toLowerCase());
 	const placeholder =
 		props.variant === "display"
-			? "Search displays"
+			? "搜索显示器"
 			: props.variant === "window"
-				? "Search windows"
+				? "搜索窗口"
 				: props.variant === "recording"
-					? "Search recordings"
-					: "Search screenshots";
+					? "搜索录制"
+					: "搜索截图";
 	const noResultsMessage =
 		props.variant === "display"
-			? "No matching displays"
+			? "没有匹配的显示器"
 			: props.variant === "window"
-				? "No matching windows"
+				? "没有匹配的窗口"
 				: props.variant === "recording"
-					? "No matching recordings"
-					: "No matching screenshots";
+					? "没有匹配的录制"
+					: "没有匹配的截图";
 
 	const handleImport = async () => {
 		const result = await dialog.open({
 			filters: [
 				{
-					name: "Video Files",
+					name: "视频文件",
 					extensions: ["mp4", "mov", "avi", "mkv", "webm", "wmv", "m4v", "flv"],
 				},
 			],
@@ -287,7 +287,7 @@ function TargetMenuPanel(props: TargetMenuPanelProps & SharedTargetMenuProps) {
 					focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-9 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-1"
 				>
 					<IconLucideArrowLeft class="size-3 text-gray-11" />
-					<span class="font-medium text-gray-12">Back</span>
+					<span class="font-medium text-gray-12">返回</span>
 				</div>
 				<div class="flex gap-2 flex-1 min-w-0">
 					<div class="relative flex-1 min-w-0 h-[36px] flex items-center">
@@ -319,7 +319,7 @@ function TargetMenuPanel(props: TargetMenuPanelProps & SharedTargetMenuProps) {
 							onClick={handleImport}
 						>
 							<IconLucideImport class="size-3.5" />
-							<span>Import</span>
+							<span>导入</span>
 						</Button>
 					</Show>
 				</div>
@@ -640,12 +640,12 @@ function Page() {
 
 	const displayErrorMessage = () => {
 		if (!displayTargets.error) return undefined;
-		return "Unable to load displays. Try using the Display button.";
+		return "无法加载显示器。请尝试使用显示器按钮。";
 	};
 
 	const windowErrorMessage = () => {
 		if (!windowTargets.error) return undefined;
-		return "Unable to load windows. Try using the Window button.";
+		return "无法加载窗口。请尝试使用窗口按钮。";
 	};
 
 	const selectDisplayTarget = async (target: CaptureDisplayWithThumbnail) => {
@@ -975,7 +975,7 @@ function Page() {
 							Component={IconMdiMonitor}
 							disabled={isRecording()}
 							onClick={() => toggleTargetMode("display")}
-							name="Display"
+							name="显示器"
 							class="flex-1 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
 						/>
 						<TargetDropdownButton
@@ -999,7 +999,7 @@ function Page() {
 								});
 							}}
 							aria-haspopup="menu"
-							aria-label="Choose display"
+							aria-label="选择显示器"
 						/>
 					</div>
 					<div
@@ -1014,7 +1014,7 @@ function Page() {
 							Component={IconLucideAppWindowMac}
 							disabled={isRecording()}
 							onClick={() => toggleTargetMode("window")}
-							name="Window"
+							name="窗口"
 							class="flex-1 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
 						/>
 						<TargetDropdownButton
@@ -1038,7 +1038,7 @@ function Page() {
 								});
 							}}
 							aria-haspopup="menu"
-							aria-label="Choose window"
+							aria-label="选择窗口"
 						/>
 					</div>
 					<TargetTypeButton
@@ -1046,7 +1046,7 @@ function Page() {
 						Component={IconMaterialSymbolsScreenshotFrame2Rounded}
 						disabled={isRecording()}
 						onClick={() => toggleTargetMode("area")}
-						name="Area"
+						name="区域"
 					/>
 				</div>
 				<BaseControls />
@@ -1086,7 +1086,7 @@ function Page() {
 					data-tauri-drag-region
 				>
 					<div class="flex gap-1 items-center" data-tauri-drag-region>
-						<Tooltip content={<span>Settings</span>}>
+						<Tooltip content={<span>设置</span>}>
 							<button
 								type="button"
 								onClick={async () => {
@@ -1098,7 +1098,7 @@ function Page() {
 								<IconCapSettings class="transition-colors text-gray-11 size-4 hover:text-gray-12" />
 							</button>
 						</Tooltip>
-						<Tooltip content={<span>Screenshots</span>}>
+						<Tooltip content={<span>截图</span>}>
 							<button
 								type="button"
 								onClick={() => {
@@ -1117,7 +1117,7 @@ function Page() {
 								<IconLucideImage class="transition-colors text-gray-11 size-4 hover:text-gray-12" />
 							</button>
 						</Tooltip>
-						<Tooltip content={<span>Recordings</span>}>
+						<Tooltip content={<span>录制</span>}>
 							<button
 								type="button"
 								onClick={() => {
@@ -1208,7 +1208,7 @@ function Page() {
 				<Show when={signIn.isPending}>
 					<div class="flex absolute inset-0 justify-center items-center bg-gray-1 animate-in fade-in">
 						<div class="flex flex-col gap-4 justify-center items-center">
-							<span>Signing In...</span>
+							<span>正在登录...</span>
 
 							<Button
 								onClick={() => {
@@ -1218,7 +1218,7 @@ function Page() {
 								variant="gray"
 								class="w-full"
 							>
-								Cancel Sign In
+								取消登录
 							</Button>
 						</div>
 					</div>
@@ -1257,9 +1257,7 @@ function Page() {
 									variant="recording"
 									targets={recordingsData()}
 									isLoading={recordings.isPending}
-									errorMessage={
-										recordings.error ? "Failed to load recordings" : undefined
-									}
+									errorMessage={recordings.error ? "加载录制失败" : undefined}
 									onSelect={async (recording) => {
 										if (recording.mode === "studio") {
 											let projectPath = recording.path;
@@ -1307,9 +1305,7 @@ function Page() {
 									variant="screenshot"
 									targets={screenshotsData()}
 									isLoading={screenshots.isPending}
-									errorMessage={
-										screenshots.error ? "Failed to load screenshots" : undefined
-									}
+									errorMessage={screenshots.error ? "加载截图失败" : undefined}
 									onSelect={async (screenshot) => {
 										await commands.showWindow({
 											ScreenshotEditor: {

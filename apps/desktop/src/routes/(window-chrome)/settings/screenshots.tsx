@@ -80,8 +80,10 @@ export default function Screenshots() {
 	);
 
 	const emptyMessage = createMemo(() => {
-		const prefix = trimmedSearch() ? "No matching" : "No";
-		return `${prefix} screenshots`;
+		if (trimmedSearch()) {
+			return "未找到匹配的截屏";
+		}
+		return "暂无截屏";
 	});
 
 	const handleScreenshotClick = (screenshot: Screenshot) => {
@@ -116,16 +118,14 @@ export default function Screenshots() {
 	return (
 		<div class="flex relative flex-col p-4 space-y-4 w-full h-full">
 			<div class="flex flex-col">
-				<h2 class="text-lg font-medium text-gray-12">Screenshots</h2>
-				<p class="text-sm text-gray-10">
-					Manage your screenshots and perform actions.
-				</p>
+				<h2 class="text-lg font-medium text-gray-12">截屏管理</h2>
+				<p class="text-sm text-gray-10">管理截屏并执行操作。</p>
 			</div>
 			<Show
 				when={screenshots.data && screenshots.data.length > 0}
 				fallback={
 					<p class="text-center text-[--text-tertiary] absolute flex items-center justify-center w-full h-full">
-						No screenshots found
+						未找到截屏
 					</p>
 				}
 			>
@@ -143,12 +143,12 @@ export default function Screenshots() {
 									setSearch("");
 								}
 							}}
-							placeholder="Search screenshots"
+							placeholder="搜索截屏"
 							autoCapitalize="off"
 							autocorrect="off"
 							autocomplete="off"
 							spellcheck={false}
-							aria-label="Search screenshots"
+							aria-label="搜索截屏"
 						/>
 					</div>
 				</div>
@@ -185,7 +185,7 @@ export default function Screenshots() {
 									)
 								}
 							>
-								Load more
+								加载更多
 							</Button>
 						</div>
 					</Show>
@@ -217,7 +217,7 @@ function ScreenshotItem(props: {
 				>
 					<img
 						class="object-cover rounded size-12"
-						alt="Screenshot thumbnail"
+						alt="截屏缩略图"
 						src={convertFileSrc(props.screenshot.path)}
 						onError={() => setImageExists(false)}
 					/>
@@ -228,34 +228,30 @@ function ScreenshotItem(props: {
 			</div>
 			<div class="flex gap-2 items-center">
 				<TooltipIconButton
-					tooltipText="Open folder"
+					tooltipText="打开所在文件夹"
 					onClick={props.onOpenFolder}
 				>
 					<IconLucideFolder class="size-4" />
 				</TooltipIconButton>
 
 				<TooltipIconButton
-					tooltipText="Open in editor"
+					tooltipText="在编辑器中打开"
 					onClick={props.onOpenEditor}
 				>
 					<IconLucideEdit class="size-4" />
 				</TooltipIconButton>
 
 				<TooltipIconButton
-					tooltipText="Copy image"
+					tooltipText="复制图片"
 					onClick={props.onCopyImageToClipboard}
 				>
 					<IconLucideCopy class="size-4" />
 				</TooltipIconButton>
 
 				<TooltipIconButton
-					tooltipText="Delete"
+					tooltipText="删除"
 					onClick={async () => {
-						if (
-							!(await ask("Are you sure you want to delete this screenshot?"))
-						)
-							return;
-						// screenshot.path is the png file. Parent is the .cap folder.
+						if (!(await ask("确定要删除该截屏吗？此操作无法撤销。"))) return;
 						const parent = props.screenshot.path.replace(/[/\\][^/\\]+$/, "");
 						await remove(parent, { recursive: true });
 

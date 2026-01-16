@@ -7,7 +7,6 @@ import { cx } from "cva";
 import { createEffect, createSignal, onMount, Show } from "solid-js";
 
 import Tooltip from "~/components/Tooltip";
-import { captionsStore } from "~/store/captions";
 import { commands } from "~/utils/tauri";
 import AspectRatioSelect from "./AspectRatioSelect";
 import {
@@ -56,39 +55,6 @@ export function PlayerContent() {
 	onMount(async () => {
 		if (editorInstance?.path) {
 			// Still load captions into the store since they will be used by the GPU renderer
-			await captionsStore.loadCaptions(editorInstance.path);
-
-			// Synchronize captions settings with project configuration
-			// This ensures the GPU renderer will receive the caption settings
-			if (editorInstance && project) {
-				const updatedProject = { ...project };
-
-				// Add captions data to project configuration if it doesn't exist
-				if (
-					!updatedProject.captions &&
-					captionsStore.state.segments.length > 0
-				) {
-					updatedProject.captions = {
-						segments: captionsStore.state.segments.map((segment) => ({
-							id: segment.id,
-							start: segment.start,
-							end: segment.end,
-							text: segment.text,
-						})),
-						settings: { ...captionsStore.state.settings },
-					};
-
-					// Update the project with captions data
-					setProject(updatedProject);
-
-					// Save the updated project configuration
-					await commands.setProjectConfig(
-						serializeProjectConfiguration(updatedProject),
-					);
-				}
-			}
-		}
-	});
 
 	// Continue to update current caption when playback time changes
 	// This is still needed for CaptionsTab to highlight the current caption
@@ -98,11 +64,6 @@ export function PlayerContent() {
 		if (
 			time !== undefined &&
 			time >= 0 &&
-			captionsStore.state.segments.length > 0
-		) {
-			captionsStore.updateCurrentCaption(time);
-		}
-	});
 
 	const isAtEnd = () => {
 		const total = totalDuration();

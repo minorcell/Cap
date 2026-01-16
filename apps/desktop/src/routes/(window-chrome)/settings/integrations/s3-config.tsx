@@ -31,7 +31,7 @@ export default function S3ConfigPage() {
 			headers: await protectedHeaders(),
 		});
 
-		if (response.status !== 200) throw new Error("Failed to fetch S3 config");
+		if (response.status !== 200) throw new Error("获取 S3 配置失败");
 
 		return response.body.config;
 	});
@@ -45,12 +45,12 @@ export default function S3ConfigPage() {
 				headers: await protectedHeaders(),
 			});
 
-			if (response.status !== 200) throw new Error("Failed to save S3 config");
+			if (response.status !== 200) throw new Error("保存 S3 配置失败");
 			return response;
 		},
 		onSuccess: async () => {
 			await refetch();
-			await commands.globalMessageDialog("S3 configuration saved successfully");
+			await commands.globalMessageDialog("S3 配置已保存");
 		},
 	}));
 
@@ -60,15 +60,12 @@ export default function S3ConfigPage() {
 				headers: await protectedHeaders(),
 			});
 
-			if (response.status !== 200)
-				throw new Error("Failed to delete S3 config");
+			if (response.status !== 200) throw new Error("删除 S3 配置失败");
 			return response;
 		},
 		onSuccess: async () => {
 			await refetch();
-			await commands.globalMessageDialog(
-				"S3 configuration deleted successfully",
-			);
+			await commands.globalMessageDialog("S3 配置已删除");
 		},
 	}));
 
@@ -87,9 +84,7 @@ export default function S3ConfigPage() {
 				clearTimeout(timeoutId);
 
 				if (response.status !== 200)
-					throw new Error(
-						`S3 connection test failed. Check your config and network connection.`,
-					);
+					throw new Error("S3 连接测试失败，请检查配置与网络是否正常。");
 
 				return response;
 			} catch (error) {
@@ -98,7 +93,7 @@ export default function S3ConfigPage() {
 				if (error instanceof Error) {
 					if (error.name === "AbortError")
 						throw new Error(
-							"Connection test timed out after 5 seconds. Please check your endpoint URL and network connection.",
+							"连接测试在 5 秒后超时，请检查终端地址和网络连接是否可访问。",
 						);
 				}
 
@@ -106,9 +101,7 @@ export default function S3ConfigPage() {
 			}
 		},
 		onSuccess: async () => {
-			await commands.globalMessageDialog(
-				"S3 configuration test successful! Connection is working.",
-			);
+			await commands.globalMessageDialog("S3 配置测试成功！连接正常。");
 		},
 	}));
 
@@ -168,24 +161,21 @@ export default function S3ConfigPage() {
 								<div class="p-4 space-y-4 animate-in fade-in">
 									<div class="pb-4 border-b border-gray-3">
 										<p class="text-sm text-gray-11">
-											It should take under 10 minutes to set up and connect your
-											storage bucket to Cap. View the{" "}
+											连接存储桶通常只需 10 分钟以内。查看{" "}
 											<a
 												href="https://cap.so/docs/s3-config"
 												target="_blank"
 												class="underline text-gray-12"
 												rel="noopener"
 											>
-												Storage Config Guide
+												存储配置指南
 											</a>{" "}
-											to get started.
+											以开始设置。
 										</p>
 									</div>
 
 									<div class="space-y-2">
-										<label class="text-[13px] text-gray-12">
-											Storage Provider
-										</label>
+										<label class="text-[13px] text-gray-12">存储提供商</label>
 										<div class="relative">
 											<select
 												value={s3Config().provider}
@@ -201,7 +191,7 @@ export default function S3ConfigPage() {
 												<option value="cloudflare">Cloudflare R2</option>
 												<option value="supabase">Supabase</option>
 												<option value="minio">MinIO</option>
-												<option value="other">Other S3-Compatible</option>
+												<option value="other">其他 S3 兼容服务</option>
 											</select>
 											<div class="flex absolute inset-y-0 right-0 items-center px-2 pointer-events-none">
 												<svg
@@ -221,24 +211,24 @@ export default function S3ConfigPage() {
 									</div>
 
 									{renderInput(
-										"Access Key ID",
+										"访问密钥 ID",
 										"accessKeyId",
 										"PL31OADSQNK",
 										"password",
 									)}
 									{renderInput(
-										"Secret Access Key",
+										"私密访问密钥",
 										"secretAccessKey",
 										"PL31OADSQNK",
 										"password",
 									)}
 									{renderInput(
-										"Endpoint",
+										"终端节点",
 										"endpoint",
 										"https://s3.amazonaws.com",
 									)}
-									{renderInput("Bucket Name", "bucketName", "my-bucket")}
-									{renderInput("Region", "region", "us-east-1")}
+									{renderInput("桶名称", "bucketName", "my-bucket")}
+									{renderInput("区域", "region", "us-east-1")}
 								</div>
 							);
 						})()}
@@ -261,11 +251,11 @@ export default function S3ConfigPage() {
 								variant="destructive"
 								onClick={() => deleteConfig.mutate()}
 							>
-								{deleteConfig.isPending ? "Removing..." : "Remove Config"}
+								{deleteConfig.isPending ? "正在删除..." : "删除配置"}
 							</Button>
 						)}
 						<Button variant="gray" onClick={() => events.emit("test")}>
-							{testConfig.isPending ? "Testing..." : "Test Connection"}
+							{testConfig.isPending ? "测试中..." : "测试连接"}
 						</Button>
 					</div>
 					<Button
@@ -273,7 +263,7 @@ export default function S3ConfigPage() {
 						variant="primary"
 						onClick={() => events.emit("save")}
 					>
-						{saveConfig.isPending ? "Saving..." : "Save"}
+						{saveConfig.isPending ? "保存中..." : "保存"}
 					</Button>
 				</fieldset>
 			</div>

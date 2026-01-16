@@ -43,20 +43,17 @@ function Inner(props: { initialStore: GeneralSettingsStore | null }) {
 		<div class="flex flex-col h-full custom-scroll">
 			<div class="p-4 space-y-4">
 				<div class="flex flex-col pb-4 border-b border-gray-2">
-					<h2 class="text-lg font-medium text-gray-12">
-						Experimental Features
-					</h2>
+					<h2 class="text-lg font-medium text-gray-12">实验性功能</h2>
 					<p class="text-sm text-gray-10">
-						These features are still in development and may not work as
-						expected.
+						这些功能仍在开发中，可能无法稳定运行或表现不一致。
 					</p>
 				</div>
 				<div class="space-y-3">
-					<h3 class="text-sm text-gray-12 w-fit">Recording Features</h3>
+					<h3 class="text-sm text-gray-12 w-fit">录制功能</h3>
 					<div class="px-3 rounded-xl border divide-y divide-gray-3 border-gray-3 bg-gray-2">
 						<ToggleSettingItem
-							label="Custom cursor capture in Studio Mode"
-							description="Studio Mode recordings will capture cursor state separately for customisation (size, smoothing) in the editor. Currently experimental as cursor events may not be captured accurately."
+							label="Studio 模式自定义光标捕捉"
+							description="Studio 模式录制会单独捕捉光标状态，便于在编辑器中调整大小与平滑。该功能仍属实验，光标事件可能无法完全准确采集。"
 							value={!!settings.custom_cursor_capture2}
 							onChange={(value) =>
 								handleChange("custom_cursor_capture2", value)
@@ -64,8 +61,8 @@ function Inner(props: { initialStore: GeneralSettingsStore | null }) {
 						/>
 						{type() !== "windows" && (
 							<ToggleSettingItem
-								label="Native camera preview"
-								description="Show the camera preview using a native GPU surface instead of rendering it within the webview. This is not functional on certain Windows systems so your mileage may vary."
+								label="原生摄像头预览"
+								description="通过原生 GPU 表面显示摄像头预览，而非在 WebView 内渲染。部分 Windows 系统不支持，表现可能不稳定。"
 								value={!!settings.enableNativeCameraPreview}
 								onChange={(value) =>
 									handleChange("enableNativeCameraPreview", value)
@@ -73,8 +70,8 @@ function Inner(props: { initialStore: GeneralSettingsStore | null }) {
 							/>
 						)}
 						<ToggleSettingItem
-							label="Auto zoom on clicks"
-							description="Automatically generate zoom segments around mouse clicks during Studio Mode recordings. This helps highlight important interactions in your recordings."
+							label="点击自动缩放"
+							description="Studio 模式录制过程中会在鼠标点击位置自动生成缩放片段，突出重要交互。"
 							value={!!settings.autoZoomOnClicks}
 							onChange={(value) => {
 								handleChange("autoZoomOnClicks", value);

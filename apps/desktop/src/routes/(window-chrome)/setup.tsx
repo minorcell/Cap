@@ -235,6 +235,11 @@ function Startup(props: { onClose: () => void }) {
 	const audio = new Audio(startupAudio);
 	if (!audioState.isMuted) audio.play();
 
+	const stopAudio = () => {
+		audio.pause();
+		audio.currentTime = 0;
+	};
+
 	// Add refs to store animation objects
 	let cloud1Animation: Animation | undefined;
 	let cloud2Animation: Animation | undefined;
@@ -256,13 +261,18 @@ function Startup(props: { onClose: () => void }) {
 
 	const handleGetStarted = async () => {
 		setIsExiting(true);
+		stopAudio();
 
 		// Cancel ongoing cloud animations
 		cloud1Animation?.cancel();
 		cloud2Animation?.cancel();
 		cloud3Animation?.cancel();
 
-		await handleStartupCompleted();
+		try {
+			await handleStartupCompleted();
+		} catch (error) {
+			console.error("Failed to complete startup:", error);
+		}
 
 		// Wait for animation to complete before showing new window and closing
 		setTimeout(async () => {
@@ -270,7 +280,7 @@ function Startup(props: { onClose: () => void }) {
 		}, 600);
 	};
 
-	onCleanup(() => audio.pause());
+	onCleanup(() => stopAudio());
 
 	onMount(() => {
 		const cloud1El = document.getElementById("cloud-1");
@@ -537,10 +547,19 @@ function Startup(props: { onClose: () => void }) {
 									class="px-12"
 									size="lg"
 									onClick={async () => {
-										handleStartupCompleted();
-										await commands.showWindow({
-											Main: { init_target_mode: null },
-										});
+										stopAudio();
+										try {
+											await handleStartupCompleted();
+										} catch (error) {
+											console.error("Failed to complete startup:", error);
+										}
+										await commands
+											.showWindow({
+												Main: { init_target_mode: null },
+											})
+											.catch((error) =>
+												console.error("Failed to show main window:", error),
+											);
 										getCurrentWindow().close();
 									}}
 								>

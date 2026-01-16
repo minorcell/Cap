@@ -6,7 +6,6 @@ mod audio_meter;
 mod auth;
 mod camera;
 mod camera_legacy;
-mod captions;
 mod deeplink_actions;
 mod editor_window;
 mod export;
@@ -2680,15 +2679,6 @@ pub async fn run(recording_logging_handle: LoggingHandle, logs_dir: PathBuf) {
             set_server_url,
             set_camera_preview_state,
             await_camera_preview_ready,
-            captions::create_dir,
-            captions::save_model_file,
-            captions::transcribe_audio,
-            captions::save_captions,
-            captions::load_captions,
-            captions::download_whisper_model,
-            captions::check_model_exists,
-            captions::delete_whisper_model,
-            captions::export_captions_srt,
             target_select_overlay::prewarm_target_select_overlays,
             target_select_overlay::open_target_select_overlays,
             target_select_overlay::close_target_select_overlays,
@@ -2718,7 +2708,6 @@ pub async fn run(recording_logging_handle: LoggingHandle, logs_dir: PathBuf) {
             RequestScreenCapturePrewarm,
             NewNotification,
             audio_meter::AudioInputLevelChange,
-            captions::DownloadProgress,
             recording::RecordingEvent,
             RecordingDeleted,
             target_select_overlay::TargetUnderCursor,

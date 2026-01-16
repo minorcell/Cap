@@ -1,489 +1,91 @@
 # CLAUDE.md
 
-This file provides comprehensive guidance to Claude Code when working with code in this repository.
+本文件提供在本仓库协作时的中文指南。
 
-## Project Overview
+## 项目概览
+- Cap 桌面端：Tauri v2 + SolidStart，面向 macOS 与 Windows 的录制、编辑与分享。
+- 共享包：`packages/ui-solid`（Solid 组件与 Tailwind 配置）、`packages/web-api-contract`（桌面端使用的 API 合同）。
+- 原生能力：`crates/*` 覆盖采集、录制、渲染、相机等 Rust crate。
+- 工具脚本：`scripts/*` 用于环境初始化、依赖检查、符号化等。
 
-Cap is the open source alternative to Loom. It's a Turborepo monorepo with a Tauri v2 desktop app (Rust + SolidStart) and a Next.js web app. The Next.js app at `apps/web` is the main web application for sharing and management; the desktop app at `apps/desktop` is the cross‑platform recorder/editor (macOS and Windows).
+## 关键目录与文件
+- `apps/desktop/`：SolidStart 前端与 Tauri 后端。
+- `packages/ui-solid/`、`packages/web-api-contract/`：桌面端依赖的共享包。
+- `crates/*`：媒体处理相关的原生 crate。
+- `scripts/*`：桌面工具脚本。
+- 自动生成且禁止编辑：`**/tauri.ts`、`**/queries.ts`、`apps/desktop/src-tauri/gen/**`。
 
-### Product Context
-- **Core Purpose**: Screen recording with instant sharing capabilities
-- **Target Users**: Content creators, developers, product managers, support teams
-- **Key Features**: Instant recording, studio mode, AI-generated captions, collaborative comments
-- **Business Model**: Freemium SaaS with usage-based pricing
-
-## File Location Patterns & Key Directories
-
-### Core Applications
-- `apps/web/` — Next.js web application (sharing, management, dashboard)
-- `apps/desktop/` — Tauri desktop app (recording, editing)
-- `apps/discord-bot/` — Discord integration bot
-- `apps/storybook/` — UI component documentation
-
-### Shared Packages
-- `packages/database/` — Drizzle ORM, auth, email templates
-- `packages/ui/` — React components for web app
-- `packages/ui-solid/` — SolidJS components for desktop
-- `packages/utils/` — Shared utilities, types, constants
-- `packages/env/` — Environment variable validation
-- `packages/web-*` — Effect-based web API layers
-
-### Rust Crates
-- `crates/media*/` — Video/audio processing pipeline
-- `crates/recording/` — Core recording functionality
-- `crates/rendering/` — Video rendering and effects
-- `crates/camera*/` — Cross-platform camera handling
-- `crates/scap-*/` — Screen capture implementations
-
-### Important File Patterns
-- `**/tauri.ts` — Auto-generated IPC bindings (DO NOT EDIT)
-- `**/queries.ts` — Auto-generated query bindings (DO NOT EDIT)
-- `apps/web/actions/**/*.ts` — Server Actions ("use server")
-- `packages/database/schema.ts` — Database schema definitions
-- `*.config.*` — Configuration files (Next.js, Tailwind, etc.)
-
-## Key Commands
-
-### Development
+## 常用命令
 ```bash
-pnpm dev:web             # Start Next.js dev server (apps/web only)
-pnpm run dev:desktop     # Start Tauri desktop dev (apps/desktop)
-pnpm build               # Build all packages/apps via Turbo
-pnpm lint                # Lint with Biome across the repo
-pnpm format              # Format with Biome
-pnpm typecheck           # TypeScript project references build
+pnpm install          # 安装依赖
+pnpm env-setup        # 生成本地 .env
+pnpm cap-setup        # 准备原生依赖
+pnpm dev              # 启动桌面端开发模式（含 Tauri）
+pnpm dev:desktop      # 同上
+pnpm build            # 构建 SolidStart 产物
+pnpm tauri:build      # 构建桌面发行版
+pnpm lint             # Biome 检查
+pnpm format           # Biome 格式化
+pnpm typecheck        # TypeScript 项目引用检查
+cargo build -p <crate>
+cargo test -p <crate>
 ```
 
-### Database Operations
-```bash
-pnpm db:generate         # Generate Drizzle migrations
-pnpm db:push             # Push schema changes to MySQL
-pnpm db:studio           # Open Drizzle Studio
-pnpm --dir packages/database db:check  # Verify database schema
-```
+## 开发约定
+- Node 20、pnpm 10.5.2、Rust 1.88+。
+- 禁止代码注释：任何语言都不要添加 `//`、`/* */`、`///`、`//!`、`#` 等注释，依赖命名与类型自解释。
+- 不启动额外服务；按需使用 `pnpm dev`/`pnpm dev:desktop`。
+- 图标由 `unplugin-icons` 自动导入，无需手动引入。
+- 如果 Turbo 构建异常，可按需清理 `.turbo`。
 
-### App-Specific Commands
-```bash
-# Web app (apps/web)
-cd apps/web && pnpm dev          # Start Next.js dev server
-
-# Desktop (apps/desktop)
-cd apps/desktop && pnpm dev      # Start SolidStart + Tauri dev
-pnpm tauri:build                 # Build desktop app (release)
-```
-
-## Development Environment Guidelines
-
-### Server Management
-- Do not start additional development servers or localhost services unless explicitly asked. Assume the developer already has the environment running and focus on code changes.
-- Prefer `pnpm dev:web` or `pnpm run dev:desktop` when you only need one app. Avoid starting multiple overlapping servers.
-- Avoid running Docker or external services yourself unless requested; root workflows handle them as needed.
-- **Database**: MySQL via Docker Compose; schema managed through Drizzle migrations
-- **Storage**: S3-compatible (AWS, Cloudflare R2, etc.) for video/audio files
-
-### Auto-generated Bindings (Desktop)
-- **NEVER EDIT**: `tauri.ts`, `queries.ts` (auto-generated on app load)
-- **NEVER EDIT**: Files under `apps/desktop/src-tauri/gen/`
-- **Icons**: Auto-imported in desktop app; do not import manually
-- **Regeneration**: These files update automatically when Rust types change
-
-### Common Development Pain Points
-- **Node Version**: Must use Node 20 (specified in package.json engines)
-- **PNPM Version**: Locked to 10.5.2 for consistency
-- **Turbo Cache**: May need clearing if builds behave unexpectedly (`rm -rf .turbo`)
-- **Database Migrations**: Always run `pnpm db:generate` before `pnpm db:push`
-- **Desktop Icons**: Use `unplugin-icons` auto-import instead of manual imports
-
-## Architecture Overview
-
-### Monorepo Structure
-- `apps/web` — Next.js 14 (App Router) web application
-- `apps/desktop` — Tauri v2 desktop app with SolidStart (SolidJS)
-- `packages/database` — Drizzle ORM (MySQL) + auth utilities
-- `packages/ui` — React UI components for the web
-- `packages/ui-solid` — SolidJS UI components for desktop
-- `packages/utils` — Shared utilities and types
-- `packages/env` — Zod-validated build/server env modules
-- `crates/*` — Rust crates for media, rendering, recording, camera, etc.
-
-### Technology Stack
-- **Package Manager**: pnpm (`pnpm@10.5.2`)
-- **Build System**: Turborepo
-- **Frontend (Web)**: React 19 + Next.js 14.2.x (App Router)
-- **Desktop**: Tauri v2, Rust 2024, SolidStart
-- **Styling**: Tailwind CSS (web consumes `@cap/ui/tailwind`)
-- **Server State**: TanStack Query v5 on web; `@tanstack/solid-query` on desktop
-- **Database**: MySQL (PlanetScale) with Drizzle ORM
-- **AI Integration**: Groq preferred, OpenAI fallback; invoked in Next.js Server Actions
-- **Analytics**: PostHog
-- **Payments**: Stripe
-
-### Critical Architectural Decisions
-1. **AI on the Server**: All Groq/OpenAI calls execute in Server Actions under `apps/web/actions`. Never call AI from client components.
-2. **Authentication**: NextAuth with a custom Drizzle adapter. Session handling via NextAuth cookies; API keys are supported for certain endpoints.
-3. **API Surface**: Prefer Server Actions. When routes are necessary, implement under `app/api/*` (Hono-based utilities present), set proper CORS, and revalidate precisely.
-4. **Desktop IPC**: Use `tauri_specta` for strongly typed commands/events; do not modify generated bindings.
-
-#### Desktop event pattern
-Rust (emit):
+## 架构与模式（Solid + Tauri）
+- 服务器状态：使用 `@tanstack/solid-query`。
+- IPC：通过 `tauri_specta` 的 `commands` 与 `events`，使用自动生成的类型。
+- 事件示例：
 ```rust
-use specta::Type;
 use tauri_specta::Event;
 
-#[derive(Serialize, Type, tauri_specta::Event, Debug, Clone)]
-pub struct UploadProgress {
-    progress: f64,
-    message: String,
-}
-
-UploadProgress { progress: 0.0, message: "Starting upload...".to_string() }
+UploadProgress { progress: 0.0, message: "开始上传..." .to_string() }
     .emit(&app)
     .ok();
 ```
 
-Frontend (listen; generated bindings):
 ```ts
-import { events } from "./tauri"; // auto-generated
-await events.uploadProgress.listen((event) => {
-  // update UI with event.payload
-});
-```
-
-## Development Workflow & Best Practices
-
-### Code Organization Principles
-1. **Follow Local Patterns**: Study neighboring files and shared packages first
-2. **Database Changes**: Always `pnpm db:generate` → `pnpm db:push` → test
-3. **Strict Typing**: Use existing types; validate config via `@cap/env`
-4. **Component Consistency**: Use `@cap/ui` (React) or `@cap/ui-solid` (Solid)
-5. **No Manual Edits**: Never touch auto-generated bindings or schemas
-
-### Key Implementation Patterns
-
-#### Server Actions (Web App)
-```typescript
-"use server";
-
-import { db } from "@cap/database";
-import { getCurrentUser } from "@cap/database/auth/session";
-
-export async function updateVideo(data: FormData) {
-  const user = await getCurrentUser();
-  if (!user?.id) throw new Error("Unauthorized");
-
-  // Database operations with Drizzle
-  return await db().update(videos).set({ ... }).where(eq(videos.id, id));
-}
-```
-
-#### Desktop IPC Commands
-```rust
-// Rust side - emit events
-UploadProgress { progress: 0.5, message: "Uploading...".to_string() }
-  .emit(&app)
-  .ok();
-```
-
-```typescript
-// Frontend side - listen to events (auto-generated)
 import { events, commands } from "./tauri";
 
-// Call commands
-await commands.startRecording({ ... });
-
-// Listen to events
+await commands.startRecording({ target: "screen" });
 await events.uploadProgress.listen((event) => {
   setProgress(event.payload.progress);
 });
 ```
+- UI 逻辑放在 Solid 组件内，IPC 仅负责与 Rust 交互，避免混杂。
 
-#### React Query Patterns
-```typescript
-// Queries with Server Actions
-const { data, isLoading } = useQuery({
-  queryKey: ["videos", userId],
-  queryFn: () => getUserVideos(),
-  staleTime: 5 * 60 * 1000,
-});
+## 环境变量（桌面端）
+- 核心：`VITE_SERVER_URL`（默认 `https://cap.so`）
+- 可选分析：`VITE_POSTHOG_KEY`、`VITE_POSTHOG_HOST`
+- 使用 `pnpm env-setup` 交互生成 `.env`。
 
-// Mutations with cache updates
-const updateMutation = useMutation({
-  mutationFn: updateVideo,
-  onSuccess: (updated) => {
-    queryClient.setQueryData(["video", updated.id], updated);
-  },
-});
-```
+## 测试与质量
+- 桌面端前端：Vitest，测试文件紧邻源码，命名为 `*.test.ts(x)`。
+- Rust crate：`cargo test`，测试放在 `src` 或 `tests`。
+- 提交前运行：`pnpm format`、`pnpm lint`、`pnpm typecheck`，Rust 代码运行 `cargo fmt`。
 
-## Environment Variables
+## 故障排查
+- Node 版本不符：确认使用 Node 20。
+- Tauri 绑定异常：重启开发服务器以再生成 `tauri.ts`。
+- 权限问题：macOS/Windows 需授予屏幕录制、麦克风等权限。
+- 编译错误：检查 Cargo 依赖和平台工具链。
 
-### Build/Client (selected)
-- `NEXT_PUBLIC_WEB_URL`
-- `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`
-- `NEXT_PUBLIC_DOCKER_BUILD` (enables Next.js standalone output)
+## 安全与配置
+- 屏幕、音频采集需遵守平台权限提示。
+- 机密配置仅放在 `.env`，不要写入版本库。
 
-### Server (selected)
-- Core: `DATABASE_URL`, `WEB_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
-- S3: `CAP_AWS_BUCKET`, `CAP_AWS_REGION`, `CAP_AWS_ACCESS_KEY`, `CAP_AWS_SECRET_KEY`, optional `CAP_AWS_ENDPOINT`, `CAP_AWS_BUCKET_URL`
-- AI: `GROQ_API_KEY`, `OPENAI_API_KEY`
-- Email/Analytics: `RESEND_API_KEY`, `RESEND_FROM_DOMAIN`, `POSTHOG_PERSONAL_API_KEY`, `DUB_API_KEY`, `DEEPGRAM_API_KEY`
-- OAuth: `GOOGLE_CLIENT_ID/SECRET`, `WORKOS_CLIENT_ID`, `WORKOS_API_KEY`
-- Stripe: `STRIPE_SECRET_KEY_TEST`, `STRIPE_SECRET_KEY_LIVE`, `STRIPE_WEBHOOK_SECRET`
-- CDN signing: `CLOUDFRONT_KEYPAIR_ID`, `CLOUDFRONT_KEYPAIR_PRIVATE_KEY`
-- Optional S3 endpoints: `S3_PUBLIC_ENDPOINT`, `S3_INTERNAL_ENDPOINT`
+## Rust Clippy 规则（工作区强制）
+- 编译器 lint：`unused_must_use = "deny"`，必须处理 `Result`/`Option` 等。
+- Clippy（全部禁止）：`dbg_macro`、`let_underscore_future`、`unchecked_duration_subtraction`、`collapsible_if`、`clone_on_copy`、`redundant_closure`、`ptr_arg`、`len_zero`、`let_unit_value`、`unnecessary_lazy_evaluations`、`needless_range_loop`、`manual_clamp`。
+- 常见反例（避免）：`dbg!(value)`、`let _ = async_fn()`、`duration_a - duration_b`、嵌套 if、`5.clone()`、`&Vec<T>` 参数、`vec.len() == 0`、`let _ = returns_unit()`、`unwrap_or_else(|| val)`、`for i in 0..vec.len()`、`value.min(max).max(min)`。
+- 正确方式示例：`tracing::debug!(?value)`、`async_fn().await`、`duration_a.saturating_sub(duration_b)`、合并条件的 if、`let x = 5`、参数使用 `&[T]`/`&str`、`vec.is_empty()`、直接调用返回 `()` 的函数、`unwrap_or(val)`、直接遍历集合、`value.clamp(min, max)`。
 
-## Testing & Build Optimization
-
-### Testing Strategy
-- **Package-Specific**: Check each `package.json` for test commands
-- **Web App**: Uses Vitest for utilities, no comprehensive frontend tests yet
-- **Desktop**: Vitest for SolidJS components in some packages
-- **Tasks Service**: Jest for API endpoint testing
-- **Rust**: Standard Cargo test framework for crates
-
-### Build Performance
-- **Turborepo Caching**: Aggressive caching across all packages
-- **Cache Invalidation**: Prefer targeted `--filter` over global rebuilds
-- **Docker Builds**: `NEXT_PUBLIC_DOCKER_BUILD=true` enables standalone output
-- **Development**: Incremental builds via TypeScript project references
-
-### Performance Monitoring
-- **Bundle Analysis**: Check Next.js bundle size regularly
-- **Database Queries**: Monitor with Drizzle Studio
-- **S3 Operations**: Watch for excessive uploads/downloads
-- **Desktop Memory**: Rust crates handle heavy media processing
-
-## Troubleshooting Common Issues
-
-### Build Failures
-- **"Cannot find module"**: Check workspace dependencies in package.json
-- **TypeScript errors**: Run `pnpm typecheck` to see project-wide issues
-- **Turbo cache issues**: Clear with `rm -rf .turbo`
-- **Node version mismatch**: Ensure Node 20 is active
-
-### Database Issues
-- **Migration failures**: Check `packages/database/migrations/meta/`
-- **Connection errors**: Verify Docker containers are running
-- **Schema drift**: Run `pnpm --dir packages/database db:check`
-
-### Desktop App Issues
-- **IPC binding errors**: Restart dev server to regenerate `tauri.ts`
-- **Rust compile errors**: Check Cargo.toml dependencies
-- **Permission issues**: macOS/Windows may require app permissions
-- **Recording failures**: Verify screen capture permissions
-
-### Web App Issues
-- **Auth failures**: Check NextAuth configuration and database
-- **S3 upload errors**: Verify AWS credentials and bucket policies
-- **Server Action errors**: Check network tab for detailed error messages
-- **Hot reload issues**: Restart Next.js dev server
-
-## React/Next.js Coding Standards
-
-### Data Fetching & Server State
-- Use TanStack Query v5 for all client-side server state and fetching.
-- Use Server Components for initial data when possible; pass `initialData` to client components and let React Query take over.
-- Mutations should call Server Actions directly and perform precise cache updates (`setQueryData`/`setQueriesData`) rather than broad invalidations.
-
-Basic query pattern:
-```tsx
-import { useQuery } from "@tanstack/react-query";
-
-function Example() {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["items"],
-    queryFn: fetchItems,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-  });
-  if (isLoading) return <Skeleton />;
-  if (error) return <ErrorState onRetry={() => { /* refetch */ }} />;
-  return <List items={data} />;
-}
-```
-
-Server Action mutation with targeted cache updates:
-```tsx
-"use client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateItem } from "@/actions/items"; // 'use server'
-
-function useUpdateItem() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: updateItem,
-    onSuccess: (updated) => {
-      qc.setQueriesData({ queryKey: ["items"] }, (old: any[] | undefined) =>
-        old?.map((it) => (it.id === updated.id ? { ...it, ...updated } : it))
-      );
-      qc.setQueryData(["item", updated.id], updated);
-    },
-  });
-}
-```
-
-Minimize `useEffect` usage: compute during render, handle logic in event handlers, and ensure cleanups for any subscriptions/timers.
-
-### Next.js App Router
-- Prefer Server Components for SEO/initial rendering; hydrate interactivity in client components.
-- Co-locate feature components, keep components focused, and use Suspense boundaries for long fetches.
-
-### UI/UX Guidelines
-- Styling: Tailwind CSS only; stay consistent with spacing and tokens.
-- Loading: Use static skeletons that mirror content; no bouncing animations.
-- Performance: Memoize expensive work; code-split naturally; use Next/Image for remote assets.
-
-## Effect Patterns
-
-### Managed Runtimes
-- `apps/web/lib/server.ts` builds a `ManagedRuntime` from `Layer.mergeAll` so database, S3, policy, and tracing services are available to every request. Always run server-side effects through `EffectRuntime.runPromise`/`runPromiseExit` from this module so cookie-derived context and `VideoPasswordAttachment` are attached automatically.
-- `apps/web/lib/EffectRuntime.ts` exposes a browser runtime that merges the RPC client and tracing layers. Client code should lean on `useEffectQuery`, `useEffectMutation`, and `useRpcClient`; never call `ManagedRuntime.make` yourself inside components.
-
-### API Route Construction
-- Next.js API folders under `apps/web/app/api/*` wrap Effect handlers with `@effect/platform`'s `HttpApi`/`HttpApiBuilder`. Follow the existing pattern: declare a contract class via `HttpApi.make`, configure groups/endpoints with `Schema`, and only export the `handler` returned by `apiToHandler(ApiLive)`.
-- Inside `HttpApiBuilder.group` blocks, acquire services (e.g., `Videos`, `S3Buckets`) with `yield*` inside `Effect.gen`. Provide layers using `Layer.provide` rather than manual `provideService` calls so dependencies stay declarative.
-- Map domain-level errors to transport errors with `HttpApiError.*`. Keep error translation exhaustive (`Effect.catchTags`, `Effect.tapErrorCause(Effect.logError)`) to preserve observability.
-- Use `HttpAuthMiddleware` for required auth and `provideOptionalAuth` when guests are allowed. The middleware/utility already hydrate `CurrentUser`, so avoid duplicating session lookups in route handlers.
-- Shared HTTP contracts that power the desktop app live in `packages/web-api-contract-effect`; update them alongside route changes to keep schemas in sync.
-
-### Server Components & Effects
-- Server components that need Effect services should call `EffectRuntime.runPromise(effect.pipe(provideOptionalAuth))`. This keeps request cookies, tracing spans, and optional auth consistent with the API layer.
-- Prefer lifting Drizzle queries or other async work into `Effect.gen` blocks and reusing domain services (`Videos`, `VideosPolicy`, etc.) rather than writing ad-hoc logic.
-
-### Client Integration
-- React Query hooks should wrap Effect workflows with `useEffectQuery`/`useEffectMutation` from `apps/web/lib/EffectRuntime.ts`; these helpers surface Fail/Die causes consistently and plug into tracing/span metadata.
-- When a mutation or query needs the RPC transport, resolve it through `useRpcClient()` and invoke the strongly-typed procedures exposed by `packages/web-domain` instead of reaching into fetch directly.
-
-## Desktop (Solid + Tauri) Patterns
-- Data fetching: `@tanstack/solid-query` for server state.
-- IPC: Call generated `commands` and `events` from `tauri_specta`. Listen directly to generated events and prefer the typed interfaces.
-- Windowing/permissions are handled in Rust; keep UI logic in Solid and avoid mixing IPC with rendering logic.
-
-## Conventions
-- **CRITICAL: NO CODE COMMENTS**: Never add any form of comments to code. This includes:
-  - Single-line comments: `//` (JavaScript/TypeScript/Rust), `#` (Python/Shell)
-  - Multi-line comments: `/* */` (JavaScript/TypeScript), `/* */` (Rust)
-  - Documentation comments: `///`, `//!` (Rust), `/** */` (JSDoc)
-  - Any other comment syntax in any language
-  - Code must be self-explanatory through naming, types, and structure. Use docs/READMEs for explanations when necessary.
-- Directory naming: lower-case-dashed
-- Components: PascalCase; hooks: camelCase starting with `use`
-- Strict TypeScript; avoid `any`; leverage shared types
-- Use Biome for linting/formatting; match existing formatting
-
-## Rust Clippy Rules (Workspace Lints)
-All Rust code must respect these workspace-level lints defined in `Cargo.toml`. Violating any of these will fail CI:
-
-**Rust compiler lints:**
-- `unused_must_use = "deny"` — Always handle `Result`/`Option` or types marked `#[must_use]`; never ignore them.
-
-**Clippy lints (all denied — code MUST NOT contain these patterns):**
-- `dbg_macro` — Never use `dbg!()` in code; use proper logging (`tracing::debug!`, etc.) instead.
-- `let_underscore_future` — Never write `let _ = async_fn()` which silently drops futures; await or explicitly handle them.
-- `unchecked_duration_subtraction` — Use `duration.saturating_sub(other)` instead of `duration - other` to avoid panics on underflow.
-- `collapsible_if` — Merge nested `if` statements: write `if a && b { }` instead of `if a { if b { } }`.
-- `clone_on_copy` — Don't call `.clone()` on `Copy` types (integers, bools, etc.); just copy them directly.
-- `redundant_closure` — Use function references directly: `iter.map(foo)` instead of `iter.map(|x| foo(x))`.
-- `ptr_arg` — Accept `&[T]` or `&str` instead of `&Vec<T>` or `&String` in function parameters for flexibility.
-- `len_zero` — Use `.is_empty()` instead of `.len() == 0` or `.len() > 0` / `.len() != 0`.
-- `let_unit_value` — Don't assign `()` to a variable: write `foo();` instead of `let _ = foo();` or `let x = foo();` when return is unit.
-- `unnecessary_lazy_evaluations` — Use `.unwrap_or(val)` instead of `.unwrap_or_else(|| val)` when the default is a simple/cheap value.
-- `needless_range_loop` — Use `for item in &collection` or `for (i, item) in collection.iter().enumerate()` instead of `for i in 0..collection.len()`.
-- `manual_clamp` — Use `value.clamp(min, max)` instead of manual `if` chains or `.min(max).max(min)` patterns.
-
-**Examples of violations to avoid:**
-
-```rust
-dbg!(value);
-let _ = some_async_function();
-let duration = duration_a - duration_b;
-if condition {
-    if other_condition {
-        do_something();
-    }
-}
-let x = 5.clone();
-vec.iter().map(|x| process(x))
-fn example(v: &Vec<i32>) { }
-if vec.len() == 0 { }
-let _ = returns_unit();
-option.unwrap_or_else(|| 42)
-for i in 0..vec.len() { println!("{}", vec[i]); }
-value.min(max).max(min)
-```
-
-**Correct alternatives:**
-
-```rust
-tracing::debug!(?value);
-some_async_function().await;
-let duration = duration_a.saturating_sub(duration_b);
-if condition && other_condition {
-    do_something();
-}
-let x = 5;
-vec.iter().map(process)
-fn example(v: &[i32]) { }
-if vec.is_empty() { }
-returns_unit();
-option.unwrap_or(42)
-for item in &vec { println!("{}", item); }
-value.clamp(min, max)
-```
-
-## Security & Privacy Considerations
-
-### Data Handling
-- **Video Storage**: S3-compatible storage with signed URLs
-- **Database**: MySQL with connection pooling via PlanetScale
-- **Authentication**: NextAuth with custom Drizzle adapter
-- **API Security**: CORS policies, rate limiting via Hono middleware
-
-### Privacy Controls
-- **Recording Permissions**: Platform-specific (macOS Screen Recording, Windows)
-- **Data Retention**: User-controlled deletion of recordings
-- **Sharing Controls**: Password protection, expiry dates on shared links
-- **Analytics**: PostHog with privacy-focused configuration
-
-## AI & Processing Pipeline
-
-### AI Integration Points
-- **Transcription**: Deepgram API for captions generation
-- **Metadata Generation**: Groq (primary) + OpenAI (fallback) for titles/descriptions
-- **Processing Location**: All AI calls in Next.js Server Actions only
-- **Privacy**: Transcripts stored in database, audio sent to external APIs
-
-### Media Processing Flow
-```
-Desktop Recording → Local Files → Upload to S3 →
-Background Processing (tasks service) →
-Transcription/AI Enhancement → Database Storage
-```
-
-## References & Documentation
-
-### Core Technologies
-- **TanStack Query**: https://tanstack.com/query/latest
-- **React Patterns**: https://react.dev/learn/you-might-not-need-an-effect
-- **Tauri v2**: https://github.com/tauri-apps/tauri
-- **tauri_specta**: https://github.com/oscartbeaumont/tauri-specta
-- **Drizzle ORM**: https://orm.drizzle.team/
-- **SolidJS**: https://solidjs.com/
-
-### Cap-Specific
-- **Self-hosting**: https://cap.so/docs/self-hosting
-- **API Documentation**: Generated from TypeScript contracts
-- **Architecture Decisions**: See individual package READMEs
-
-### Development Resources
-- **Monorepo Guide**: Turborepo documentation
-- **Effect System**: Used in web-backend packages
-- **Media Processing**: FFmpeg documentation for Rust bindings
-
-## Code Formatting
-
-Always format code before completing work:
-- **TypeScript/JavaScript**: Run `pnpm format` to format all code with Biome
-- **Rust**: Run `cargo fmt` to format all Rust code with rustfmt
-
-These commands should be run regularly during development and always at the end of a coding session to ensure consistent formatting across the codebase.
+## 代码格式与提交
+- 格式化：TypeScript/JavaScript 用 `pnpm format`，Rust 用 `cargo fmt`。
+- 提交规范：`feat:`、`fix:`、`chore:`、`improve:`、`refactor:`、`docs:` 等前缀；PR 需描述清晰、关联 issue、附 UI 截图或 GIF（如涉及界面），并在行为变化时更新文档。

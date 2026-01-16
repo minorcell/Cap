@@ -1,72 +1,62 @@
-# Repository Guidelines
+# 仓库指南
 
-## Project Structure & Modules
-- Turborepo monorepo:
-  - `apps/desktop` (Tauri v2 + SolidStart), `apps/web` (Next.js), `apps/cli` (Rust CLI).
-  - `packages/*` shared libs (e.g., `database`, `ui`, `ui-solid`, `utils`, `web-*`).
-  - `crates/*` Rust media/recording/rendering/camera crates.
-  - `scripts/*`, `infra/`, and `packages/local-docker/` for tooling and local services.
+## 项目结构
+- Turborepo 工作区：
+  - `apps/desktop`：Tauri v2 + SolidStart 桌面端
+  - `packages/ui-solid`、`packages/web-api-contract`：桌面端共享包
+  - `crates/*`：采集、录制、渲染、相机等原生 Rust crate
+  - `scripts/*`：桌面工具脚本
 
-## Build, Test, Develop
-- Install: `pnpm install`; setup: `pnpm env-setup` then `pnpm cap-setup`.
-- Dev: `pnpm dev` (web+desktop). Desktop only: `pnpm dev:desktop`. Web only: `pnpm dev:web` or `cd apps/web && pnpm dev`.
-- Build: `pnpm build` (Turbo). Desktop release: `pnpm tauri:build`.
-- DB: `pnpm db:generate` → `pnpm db:push` → `pnpm db:studio`.
-- Docker: `pnpm docker:up | docker:stop | docker:clean`.
-- Quality: `pnpm lint`, `pnpm format`, `pnpm typecheck`. Rust: `cargo build -p <crate>`, `cargo test -p <crate>`.
+## 构建、测试、开发
+- 安装：`pnpm install`；初始化：`pnpm env-setup` 后执行 `pnpm cap-setup`
+- 开发：`pnpm dev` 或 `pnpm dev:desktop`
+- 构建：`pnpm build`（SolidStart），桌面发行版：`pnpm tauri:build`
+- 质量：`pnpm lint`、`pnpm format`、`pnpm typecheck`；Rust：`cargo build -p <crate>`、`cargo test -p <crate>`
 
-## Coding Style & Naming
-- TypeScript: 2‑space indent; Biome formats/lints (`pnpm format`).
-- Rust: `rustfmt` + workspace clippy lints.
-- Naming: files kebab‑case (`user-menu.tsx`); components PascalCase; Rust modules snake_case, crates kebab‑case.
-- Runtime: Node 20, pnpm 10.x, Rust 1.88+, Docker for MySQL/MinIO.
-- **NO COMMENTS**: Never add comments to code (`//`, `/* */`, `///`, `//!`, `#`, etc.). Code must be self-explanatory through naming, types, and structure. This applies to all languages (TypeScript, Rust, JavaScript, etc.).
+## 代码风格与命名
+- TypeScript：2 空格缩进，使用 Biome（`pnpm format`）
+- Rust：`rustfmt` 与工作区 clippy 规则
+- 命名：文件 kebab-case，组件 PascalCase，Rust 模块 snake_case，crate kebab-case
+- 运行时要求：Node 20、pnpm 10.x、Rust 1.88+
+- **禁止代码注释**：不要在任何语言中添加 `//`、`/* */`、`///`、`//!`、`#` 等注释，需通过命名、类型与结构自解释
 
-## Rust Clippy Rules (Workspace Lints)
-All Rust code must respect these workspace-level lints defined in `Cargo.toml`:
+## Rust Clippy 规则（工作区强制）
+所有 Rust 代码遵循 `Cargo.toml` 中的 lints：
 
-**Rust compiler lints:**
-- `unused_must_use = "deny"` — Always handle `Result`/`Option` or types marked `#[must_use]`; never ignore them.
+**编译器 lints：**
+- `unused_must_use = "deny"` — `Result`/`Option` 等必须处理，不能忽略。
 
-**Clippy lints (all denied):**
-- `dbg_macro` — Never use `dbg!()` in code; use proper logging instead.
-- `let_underscore_future` — Never write `let _ = async_fn()` which silently drops futures; await or explicitly handle them.
-- `unchecked_duration_subtraction` — Use `saturating_sub` instead of `-` for `Duration` to avoid panics.
-- `collapsible_if` — Merge nested `if` statements: use `if a && b { }` instead of `if a { if b { } }`.
-- `clone_on_copy` — Don't call `.clone()` on `Copy` types; just copy them directly.
-- `redundant_closure` — Use function references directly: `iter.map(foo)` instead of `iter.map(|x| foo(x))`.
-- `ptr_arg` — Accept `&[T]` or `&str` instead of `&Vec<T>` or `&String` in function parameters.
-- `len_zero` — Use `.is_empty()` instead of `.len() == 0` or `.len() > 0`.
-- `let_unit_value` — Don't assign `()` to a variable: write `foo();` instead of `let _ = foo();` when return is unit.
-- `unnecessary_lazy_evaluations` — Use `.unwrap_or(val)` instead of `.unwrap_or_else(|| val)` for cheap values.
-- `needless_range_loop` — Use `for item in &collection` instead of `for i in 0..collection.len()` when index isn't needed.
-- `manual_clamp` — Use `.clamp(min, max)` instead of manual `if` chains or `.min().max()` patterns.
+**Clippy lints（全部 deny）：**
+- `dbg_macro` — 不使用 `dbg!()`。
+- `let_underscore_future` — 不写 `let _ = async_fn()`；要等待或显式处理。
+- `unchecked_duration_subtraction` — `Duration` 使用 `saturating_sub`。
+- `collapsible_if` — 嵌套 if 合并为单个条件。
+- `clone_on_copy` — `Copy` 类型不调用 `.clone()`。
+- `redundant_closure` — 直接用函数引用，如 `iter.map(foo)`。
+- `ptr_arg` — 参数用 `&[T]` 或 `&str`，不用 `&Vec<T>`/`&String`。
+- `len_zero` — 使用 `.is_empty()`。
+- `let_unit_value` — 返回 `()` 的函数直接调用，不赋值。
+- `unnecessary_lazy_evaluations` — 便宜值用 `.unwrap_or(val)`。
+- `needless_range_loop` — 不用索引时直接遍历集合。
+- `manual_clamp` — 使用 `.clamp(min, max)`。
 
-## Testing
-- TS/JS: Vitest where present (e.g., desktop). Name tests `*.test.ts(x)` near sources.
-- Rust: `cargo test` per crate; tests in `src` or `tests`.
-- Prefer unit tests for logic and light smoke tests for flows; no strict coverage yet.
+## 测试
+- TS/JS：有 Vitest 的地方（桌面端）使用 `*.test.ts(x)` 紧邻源码
+- Rust：每个 crate 运行 `cargo test`，测试放在 `src` 或 `tests`
+- 以单元测试为主，适当冒烟覆盖关键流程
 
-## Commits & PRs
-- Conventional style: `feat:`, `fix:`, `chore:`, `improve:`, `refactor:`, `docs:` (e.g., `fix: hide watermark for pro users`).
-- PRs: clear description, linked issues, screenshots/GIFs for UI, env/migration notes. Keep scope tight and update docs when behavior changes.
+## 提交与 PR
+- 提交遵循 conventional 前缀：`feat:`、`fix:`、`chore:`、`improve:`、`refactor:`、`docs:` 等
+- PR 需包含清晰描述、关联 issue、UI 截图/GIF、环境或迁移说明；范围保持收敛，行为变化时同步更新文档
 
-## Agent‑Specific Practices (inspired by CLAUDE.md)
-- Do not start extra servers; use `pnpm dev:web` or `pnpm dev:desktop` as needed.
-- Never edit auto‑generated files: `**/tauri.ts`, `**/queries.ts`, `apps/desktop/src-tauri/gen/**`.
-- Prefer existing scripts and Turbo filters over ad‑hoc commands; clear `.turbo` only when necessary.
-- Database flow: always `db:generate` → `db:push` before relying on new schema.
-- Keep secrets out of VCS; configure via `.env` from `pnpm env-setup`.
-- macOS note: desktop permissions (screen/mic) apply to the terminal running `pnpm dev:desktop`.
-- **CRITICAL: NO CODE COMMENTS**: Never add any form of comments (`//`, `/* */`, `///`, `//!`, `#`, etc.) to generated or edited code. Code must be self-explanatory.
+## Agent 使用约定
+- 不启动额外服务；按需使用 `pnpm dev`/`pnpm dev:desktop`
+- 不编辑自动生成文件：`**/tauri.ts`、`**/queries.ts`、`apps/desktop/src-tauri/gen/**`
+- 优先使用现有脚本与 Turbo 过滤；仅在必要时清理 `.turbo`
+- 秘密配置写入 `.env`，勿入版本库
+- macOS 桌面权限（屏幕/麦克风）绑定运行 `pnpm dev:desktop` 的终端
+- **严格禁止代码注释**：任何新增或修改的代码都不得添加注释
 
-## Effect Usage
-- Next.js API routes in `apps/web/app/api/*` are built with `@effect/platform`'s `HttpApi` builder; copy the existing class/group/endpoint pattern instead of ad-hoc handlers.
-- Acquire backend services (e.g., `Videos`, `S3Buckets`) inside `Effect.gen` blocks and wire them through `Layer.provide`/`HttpApiBuilder.group`, translating domain errors to `HttpApiError` variants.
-- Convert the effectful API to a Next.js handler with `apiToHandler(ApiLive)` from `@/lib/server` and export the returned `handler`—avoid calling `runPromise` inside route files.
-- On the server, run effects through `EffectRuntime.runPromise` from `@/lib/server`, typically after `provideOptionalAuth`, so cookies and per-request context are attached automatically.
-- On the client, use `useEffectQuery`/`useEffectMutation` from `@/lib/EffectRuntime`; they already bind the managed runtime and tracing so you shouldn't call `EffectRuntime.run*` directly in components.
-
-## Code Formatting
-- Always format code before completing work: run `pnpm format` for TypeScript/JavaScript and `cargo fmt` for Rust.
-- Run these commands regularly during development and always at the end of a coding session to ensure consistent formatting.
+## 代码格式
+- 交付前必须格式化：TypeScript/JavaScript 用 `pnpm format`，Rust 用 `cargo fmt`
+- 开发过程中定期执行，确保一致性

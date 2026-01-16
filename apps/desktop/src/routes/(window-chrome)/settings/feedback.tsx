@@ -53,10 +53,9 @@ export default function FeedbackTab() {
 			<div class="flex-1 custom-scroll">
 				<div class="p-4 space-y-4">
 					<div class="flex flex-col pb-4 border-b border-gray-2">
-						<h2 class="text-lg font-medium text-gray-12">Send Feedback</h2>
+						<h2 class="text-lg font-medium text-gray-12">发送反馈</h2>
 						<p class="text-sm text-gray-10">
-							Help us improve Cap by submitting feedback or reporting bugs.
-							We'll get right on it.
+							通过提交反馈或报告问题，帮助我们持续改进 Cap。我们会尽快处理。
 						</p>
 					</div>
 					<form
@@ -71,7 +70,7 @@ export default function FeedbackTab() {
 								<textarea
 									value={feedback()}
 									onInput={(e) => setFeedback(e.currentTarget.value)}
-									placeholder="Tell us what you think about Cap..."
+									placeholder="告诉我们你对 Cap 的看法..."
 									required
 									minLength={10}
 									class="p-2 w-full h-32 text-[13px] rounded-md border transition-colors duration-200 resize-none bg-gray-2 placeholder:text-gray-10 border-gray-3 text-primary focus:outline-none focus:ring-1 focus:ring-gray-8 hover:border-gray-6"
@@ -85,7 +84,7 @@ export default function FeedbackTab() {
 							)}
 
 							{submission.result?.success && (
-								<p class="text-sm text-primary">Thank you for your feedback!</p>
+								<p class="text-sm text-primary">感谢你的反馈！</p>
 							)}
 
 							<Button
@@ -95,35 +94,29 @@ export default function FeedbackTab() {
 								disabled={feedback().trim().length < 4}
 								class="mt-2"
 							>
-								{submission.pending ? "Submitting..." : "Submit Feedback"}
+								{submission.pending ? "提交中..." : "提交反馈"}
 							</Button>
 						</fieldset>
 					</form>
 
 					<div class="pt-6 border-t border-gray-2">
-						<h3 class="text-sm font-medium text-gray-12 mb-2">
-							Join the Community
-						</h3>
+						<h3 class="text-sm font-medium text-gray-12 mb-2">加入社区</h3>
 						<p class="text-sm text-gray-10 mb-3">
-							Have questions, want to share ideas, or just hang out? Join the
-							Cap Discord community.
+							有问题、想分享想法或闲聊？欢迎加入 Cap Discord 社区。
 						</p>
 						<Button
 							onClick={() => window.open("https://cap.link/discord", "_blank")}
 							size="md"
 							variant="gray"
 						>
-							Join Discord
+							加入 Discord
 						</Button>
 					</div>
 
 					<div class="pt-6 border-t border-gray-2">
-						<h3 class="text-sm font-medium text-gray-12 mb-2">
-							Debug Information
-						</h3>
+						<h3 class="text-sm font-medium text-gray-12 mb-2">调试信息</h3>
 						<p class="text-sm text-gray-10 mb-3">
-							Upload your logs to help us diagnose issues with Cap. No personal
-							information is included.
+							上传日志帮助我们排查 Cap 的问题，不包含个人信息。
 						</p>
 						<Button
 							onClick={handleUploadLogs}
@@ -131,21 +124,15 @@ export default function FeedbackTab() {
 							variant="gray"
 							disabled={uploadingLogs()}
 						>
-							{uploadingLogs() ? "Uploading..." : "Upload Logs"}
+							{uploadingLogs() ? "正在上传..." : "上传日志"}
 						</Button>
 					</div>
 
 					<div class="pt-6 border-t border-gray-2">
-						<h3 class="text-sm font-medium text-gray-12 mb-3">
-							System Information
-						</h3>
+						<h3 class="text-sm font-medium text-gray-12 mb-3">系统信息</h3>
 						<Show
 							when={!diagnostics.loading && diagnostics()}
-							fallback={
-								<p class="text-sm text-gray-10">
-									Loading system information...
-								</p>
-							}
+							fallback={<p class="text-sm text-gray-10">正在加载系统信息...</p>}
 						>
 							{(diag) => {
 								const d = diag() as Record<string, unknown>;
@@ -166,9 +153,7 @@ export default function FeedbackTab() {
 										<Show when={osVersion}>
 											{(ver) => (
 												<div class="space-y-1">
-													<p class="text-gray-11 font-medium">
-														Operating System
-													</p>
+													<p class="text-gray-11 font-medium">操作系统</p>
 													<p class="text-gray-10 bg-gray-2 px-2 py-1.5 rounded font-mono text-xs">
 														{ver().displayName}
 													</p>
@@ -177,7 +162,7 @@ export default function FeedbackTab() {
 										</Show>
 
 										<div class="space-y-1">
-											<p class="text-gray-11 font-medium">Capture Support</p>
+											<p class="text-gray-11 font-medium">采集支持</p>
 											<div class="flex gap-2 flex-wrap">
 												<span
 													class={`px-2 py-1 rounded text-xs ${
@@ -186,17 +171,15 @@ export default function FeedbackTab() {
 															: "bg-red-500/20 text-red-400"
 													}`}
 												>
-													Screen Capture:{" "}
-													{captureSupported ? "Supported" : "Not Supported"}
+													屏幕采集：
+													{captureSupported ? "支持" : "不支持"}
 												</span>
 											</div>
 										</div>
 
 										<Show when={(d.availableEncoders as string[])?.length > 0}>
 											<div class="space-y-1">
-												<p class="text-gray-11 font-medium">
-													Available Encoders
-												</p>
+												<p class="text-gray-11 font-medium">可用编码器</p>
 												<div class="flex gap-1.5 flex-wrap">
 													<For each={d.availableEncoders as string[]}>
 														{(encoder) => (

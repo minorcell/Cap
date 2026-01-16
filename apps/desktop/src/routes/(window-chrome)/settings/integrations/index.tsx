@@ -19,9 +19,9 @@ export default function AppsTab() {
 
 	const apps = [
 		{
-			name: "S3 Config",
+			name: "S3 配置",
 			description:
-				"Connect your own S3 bucket for complete control over your data storage. All new shareable link uploads will be automatically uploaded to your configured S3 bucket, ensuring you maintain complete ownership and control over your content. Perfect for organizations requiring data sovereignty and custom storage policies.",
+				"连接您自己的 S3 桶以全面掌控数据存储。所有新的可分享链接上传都会自动同步到配置的 S3 桶，确保内容归您所有，适合需要数据主权与自定义存储策略的组织。",
 			icon: IconLucideDatabase,
 			url: "/settings/integrations/s3-config",
 			pro: true,
@@ -43,10 +43,9 @@ export default function AppsTab() {
 	return (
 		<div class="p-4 space-y-4">
 			<div class="flex flex-col pb-4 border-b border-gray-2">
-				<h2 class="text-lg font-medium text-gray-12">Integrations</h2>
+				<h2 class="text-lg font-medium text-gray-12">集成</h2>
 				<p class="text-sm text-gray-10">
-					Configure integrations to extend Cap's functionality and connect with
-					third-party services.
+					配置集成以扩展 Cap 功能并连接第三方服务。
 				</p>
 			</div>
 			<For each={apps}>
@@ -62,7 +61,7 @@ export default function AppsTab() {
 								variant="primary"
 								onClick={() => handleAppClick(app)}
 							>
-								{app.pro && !isPro() ? "Upgrade to Pro" : "Configure"}
+								{app.pro && !isPro() ? "升级至 Pro" : "配置"}
 							</Button>
 						</div>
 						<p class="text-[13px] text-gray-11">{app.description}</p>

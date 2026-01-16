@@ -30,8 +30,7 @@ async function main() {
 			VITE_VERCEL_AUTOMATION_BYPASS_SECRET: () =>
 				text({
 					message: "VITE_VERCEL_AUTOMATION_BYPASS_SECRET (optional)",
-					defaultValue:
-						stored.VITE_VERCEL_AUTOMATION_BYPASS_SECRET ?? "",
+					defaultValue: stored.VITE_VERCEL_AUTOMATION_BYPASS_SECRET ?? "",
 				}),
 			VITE_POSTHOG_KEY: () =>
 				text({
@@ -70,7 +69,10 @@ async function main() {
 
 	await fs.writeFile(".env", buildEnvContent(envs));
 	await fs.mkdir("target/env-profiles", { recursive: true });
-	await fs.writeFile(profilePath, JSON.stringify({ ...stored, ...envs }, null, 4));
+	await fs.writeFile(
+		profilePath,
+		JSON.stringify({ ...stored, ...envs }, null, 4),
+	);
 
 	outro("Desktop env saved to .env");
 }
